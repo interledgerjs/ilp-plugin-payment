@@ -17,7 +17,7 @@ class PluginXrpPaymentClient extends PluginBtp {
     this._connected = true
 
     await this._ripple.connect()
-    this._ripple.on('money', value => {
+    this._ripple.on('money', (userId, value) => {
       if (this._handleMoney) {
         this._handleMoney(String(value))
           .catch(e => console.error('_handleMoney Error:', e))
@@ -54,7 +54,7 @@ class PluginXrpPaymentClient extends PluginBtp {
     if (protocolMap['get_payment_details']) {
       return this.ilpAndCustomToProtocolData({
         custom: {
-          'get_payment_details': await this._ripple.getPaymentDetails()
+          'get_payment_details': await this._ripple.getPaymentDetails(0)
         }
       })
     }

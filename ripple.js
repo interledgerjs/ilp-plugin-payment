@@ -25,7 +25,24 @@ class Ripple extends EventEmitter {
     // and multiple plugins might register the incoming money. If you don't
     // have a mechanism to do this, then be very careful that multiple plugins
     // don't run on the same account
-    this._destinationTag = crypto.randomBytes(4).readUInt32BE(0)
+    this._destinationTagMap = new Map()
+    this._userIdMap = new Map()
+  }
+
+  async userIdToDestinationTag (userId) {
+    if (!this._destinationTagMap.get(userId)) {
+      const tag = crypto.randomBytes(4).readUInt32BE(0)
+      this._destinationTagMap.set(userId, tag)
+      this._userIdMap.set(tag, userId)
+    }
+    return this._destinationTagMap.get(userId)
+  }
+
+  async destinationTagToUserId (tag) {
+    if (!this._userIdMap.get(tag)) {
+      throw new Error('no user id found for tag. tag=' + tag)
+    }
+    return this._userIdMap.get(tag)
   }
 
   async connect () {
@@ -40,11 +57,11 @@ class Ripple extends EventEmitter {
     this._api.connection.on('transaction', ev => {
       if (ev.validated && ev.transaction &&
         ev.transaction.TransactionType === 'Payment' &&
-        ev.transaction.DestinationTag === this._destinationTag &&
         ev.transaction.Destination === this._address &&
         ev.transaction.Amount.currency === 'XRP') {
+        const userId = this._destinationTagToUserId(ev.transaction.DestinationTag)
         const value = new BigNumber(ev.transaction.Amount.value).times(1e6).toString()
-        this.emitAsync('money', value)
+        this.emitAsync('money', userId, value)
       }
     })
   }
@@ -52,10 +69,10 @@ class Ripple extends EventEmitter {
   // Return whatever details are needed in order to pay to this plugin's
   // account. They'll be returned when the other side calls
   // _getPaymentDetails()
-  async getPaymentDetails () {
+  async getPaymentDetails (userId) {
     return {
       address: this._address,
-      destinationTag: this._destinationTag
+      destinationTag: this._userIdToDestinationTag(userId)
     }
   }
 
