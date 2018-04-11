@@ -1,0 +1,19 @@
+{
+  "name": "ilp-plugin-xrp-payment",
+  "version": "0.0.1",
+  "description": "Settle ILP connection with XRP payments",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sharafian/ilp-plugin-xrp-payment.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sharafian/ilp-plugin-xrp-payment/issues"
+  },
+  "homepage": "https://github.com/sharafian/ilp-plugin-xrp-payment#readme"
+}
