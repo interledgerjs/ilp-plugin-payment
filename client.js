@@ -1,6 +1,10 @@
 const PluginBtp = require('ilp-plugin-btp')
 const Ripple = require('./ripple')
 
+// The code in this module is non-ripple specific. All you should have to do is
+// change this._ripple to your network of choice. To integrate a new network,
+// rewrite ./ripple.js for your new network.
+
 class PluginXrpPaymentClient extends PluginBtp {
   constructor (opts) {
     super(opts)
@@ -8,8 +12,6 @@ class PluginXrpPaymentClient extends PluginBtp {
     this._connected = false
   }
 
-  // This function is ripple specific. Replace it with any code necessary to connect to your
-  // network. If your network is not connection oriented you can delete this function.
   async _connect () {
     if (this._connected) return
     this._connected = true
@@ -23,9 +25,6 @@ class PluginXrpPaymentClient extends PluginBtp {
     })
   }
 
-  // Make a call to the other side to request details on how to pay them. This
-  // function is non-ripple specific, so it can stay the same if you integrate
-  // a different network.
   async _getPaymentDetails () {
     const protocolData = this.ilpAndCustomToProtocolData({
       custom: {
@@ -49,9 +48,6 @@ class PluginXrpPaymentClient extends PluginBtp {
     return details
   }
 
-  // Override handleData to respond to "get_payment_details" requests. This
-  // function is non-ripple specific, so it can stay the same if you integrate
-  // a different network.
   async _handleData (from, {requestId, data}) {
     const { ilp, protocolMap } = this.protocolDataToIlpAndCustom(data)
 
@@ -71,10 +67,6 @@ class PluginXrpPaymentClient extends PluginBtp {
     return ilpAndCustomToProtocolData({ ilp: response })
   }
 
-  // This function fetches payment details and then uses them to make a payment. You'll
-  // need to override this code for your network in order to send a payment. The amount
-  // here is in XRP drops, but you can make it whatever unit you like so long as it's
-  // consistent
   async sendMoney (amount) {
     const details = await this._getPaymentDetails()
     this._ripple.sendMoney(details, amount)

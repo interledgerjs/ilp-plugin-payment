@@ -49,9 +49,9 @@ class Ripple extends EventEmitter {
     })
   }
 
-  // This function needs to be overloaded for different networks. Return whatever details
-  // are needed in order to pay to this plugin's account. They'll be returned when the other
-  // side calls _getPaymentDetails()
+  // Return whatever details are needed in order to pay to this plugin's
+  // account. They'll be returned when the other side calls
+  // _getPaymentDetails()
   async getPaymentDetails () {
     return {
       address: this._address,
@@ -59,6 +59,8 @@ class Ripple extends EventEmitter {
     }
   }
 
+  // Sends a payment. Details is the return value from getPaymentDetails for
+  // the other side.
   async sendMoney (details, amount) {
     const xrpAmount = new BigNumber(amount).div(1e6).toString()
 
