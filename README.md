@@ -26,8 +26,9 @@ integrate other systems.
 ### Client/Peer
 
 ```js
-const PluginXrpPaymentClient = require('ilp-plugin-xrp-payment/client')
-const plugin = new PluginXrpPaymentClient({
+const PluginXrpPayment = require('ilp-plugin-xrp-payment')
+const plugin = new PluginXrpPayment({
+  role: 'client',
   server: 'btp+ws://example.com:1234',
   secret: 's...'
 })
@@ -36,8 +37,9 @@ const plugin = new PluginXrpPaymentClient({
 ### Server
 
 ```js
-const PluginXrpPaymentServer = require('ilp-plugin-xrp-payment/server')
-const plugin = new PluginXrpPaymentServer({
+const PluginXrpPayment = require('ilp-plugin-xrp-payment')
+const plugin = new PluginXrpPayment({
+  role: 'server',
   port: 1234,
   secret: 's...'
 })
