@@ -1,7 +1,6 @@
 const PluginBtp = require('ilp-plugin-btp')
-const Ripple = require('./ripple')
 
-class PluginXrpPaymentClient extends PluginBtp {
+class PluginPaymentClient extends PluginBtp {
   constructor (opts) {
     super(opts)
     this._connected = false
@@ -15,7 +14,7 @@ class PluginXrpPaymentClient extends PluginBtp {
     if (this._connected) return
     this._connected = true
 
-    await this._settler.connect()
+    await this._settler.connectPayment()
     this._settler.on('money', (userId, value) => {
       if (this._handleMoney) {
         this._handleMoney(String(value))
@@ -68,6 +67,8 @@ class PluginXrpPaymentClient extends PluginBtp {
 
   async sendMoney (amount) {
     const details = await this._getPaymentDetails()
-    this._settler.sendMoney(details, amount)
+    this._settler.sendPayment(details, amount)
   }
 }
+
+module.exports = PluginPaymentClient

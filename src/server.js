@@ -2,7 +2,7 @@ const PluginMiniAccounts = require('ilp-plugin-mini-accounts')
 const IlpPacket = require('ilp-packet')
 const debug = require('debug')('ilp-plugin-xrp-payment-server')
 
-class PluginXrpPaymentServer extends PluginMiniAccounts {
+class PluginPaymentServer extends PluginMiniAccounts {
   constructor (opts) {
     super(opts)
     this._connected = false
@@ -21,7 +21,7 @@ class PluginXrpPaymentServer extends PluginMiniAccounts {
     if (this._connected) return
     this._connected = true
 
-    await this._settler.connect()
+    await this._settler.connectPayment()
     this._settler.on('money', (userId, value) => {
       const balance = this._balances.get(userId) || new BigNumber(0)
       const newBalance = balance.minus(value)
@@ -61,7 +61,7 @@ class PluginXrpPaymentServer extends PluginMiniAccounts {
         const account = this.ilpAddressToAccount(from)
         const details = await this._getPaymentDetails(from)
         const amount = this._settleTo.minus(this._balances.get(account)).toString()
-        await this._settler.sendMoney(details, amount)
+        await this._settler.sendPayment(details, amount)
 
         const balance = this._balances.get(account)
         const newBalance = balance.add(amount)
@@ -134,3 +134,5 @@ class PluginXrpPaymentServer extends PluginMiniAccounts {
     return this.ilpAndCustomToProtocolData({ ilp: response })
   }
 }
+
+module.exports = PluginPaymentServer
