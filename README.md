@@ -38,7 +38,7 @@ const PluginPayment = require('ilp-plugin-payment')
 const plugin = new PluginPayment({
   role: 'client',
   server: 'btp+ws://example.com:1234',
-  secret: 's...'
+  /* ... */
 })
 ```
 
@@ -49,7 +49,7 @@ const PluginPayment = require('ilp-plugin-payment')
 const plugin = new PluginPayment({
   role: 'server',
   port: 1234,
-  secret: 's...'
+  /* ... */
 })
 ```
 
