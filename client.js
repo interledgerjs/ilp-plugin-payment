@@ -36,7 +36,7 @@ class PluginXrpPaymentClient extends PluginBtp {
       type: BtpPacket.TYPE_MESSAGE,
       requestId: await this._requestId(),
       data: { protocolData }
-    }
+    })
 
     const { protocolMap } = this.protocolDataToIlpAndCustom(response)
     const details = protocolMap['get_payment_details']
