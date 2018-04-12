@@ -2,7 +2,7 @@ const EventEmitter = require('eventemitter2')
 const PaymentServerPlugin = require('./src/server')
 const PaymentClientPlugin = require('./src/client')
 
-class PaymentPlugin {
+class PaymentPlugin extends EventEmitter {
   constructor (opts) {
     super()
 
