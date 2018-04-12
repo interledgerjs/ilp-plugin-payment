@@ -10,6 +10,8 @@ class PaymentPlugin {
     const InternalPluginClass = role === 'client' ? PaymentClientPlugin : PaymentServerPlugin
     this._plugin = new InternalPluginClass(opts)
 
+    this._plugin.setSettler(this)
+
     this._plugin.on('connect', () => this.emitAsync('connect'))
     this._plugin.on('disconnect', () => this.emitAsync('disconnect'))
     this._plugin.on('error', e => this.emitAsync('error', e))

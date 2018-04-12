@@ -1,12 +1,10 @@
 const PluginMiniAccounts = require('ilp-plugin-mini-accounts')
 const IlpPacket = require('ilp-packet')
-const Ripple = require('./ripple')
 const debug = require('debug')('ilp-plugin-xrp-payment-server')
 
 class PluginXrpPaymentServer extends PluginMiniAccounts {
   constructor (opts) {
     super(opts)
-    this._ripple = new Ripple(opts)
     this._connected = false
 
     this._settleTo = new BigNumber(opts.settleTo || '0')
@@ -15,12 +13,16 @@ class PluginXrpPaymentServer extends PluginMiniAccounts {
     this._settling = false
   }
 
+  setSettler (settler) {
+    this._settler = settler
+  }
+
   async _preConnect () {
     if (this._connected) return
     this._connected = true
 
-    await this._ripple.connect()
-    this._ripple.on('money', (userId, value) => {
+    await this._settler.connect()
+    this._settler.on('money', (userId, value) => {
       const balance = this._balances.get(userId) || new BigNumber(0)
       const newBalance = balance.minus(value)
       this._balances.set(userId, newBalance)
@@ -59,7 +61,7 @@ class PluginXrpPaymentServer extends PluginMiniAccounts {
         const account = this.ilpAddressToAccount(from)
         const details = await this._getPaymentDetails(from)
         const amount = this._settleTo.minus(this._balances.get(account)).toString()
-        await this._ripple.sendMoney(details, amount)
+        await this._settler.sendMoney(details, amount)
 
         const balance = this._balances.get(account)
         const newBalance = balance.add(amount)
@@ -95,7 +97,7 @@ class PluginXrpPaymentServer extends PluginMiniAccounts {
     if (protocolMap['get_payment_details']) {
       return this.ilpAndCustomToProtocolData({
         custom: {
-          'get_payment_details': await this._ripple.getPaymentDetails(account)
+          'get_payment_details': await this._settler.getPaymentDetails(account)
         }
       })
     }

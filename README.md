@@ -1,4 +1,4 @@
-# ILP Plugin XRP Payment
+# ILP Plugin Payment
 
 - [Overview](#overview)
 - [Configuration](#configuration)
@@ -8,26 +8,30 @@
 
 ## Overview
 
-ILP Plugin XRP Payment is a plugin that uses XRP payments for settlement. Our
-other XRP integrations use payment channels, which are higher performance but
-require more money to be locked up.
-
-This repository is intended to be a reference for developers who want to
-integrate other systems.
+ILP Plugin Payment is a base class that can be extended to integrate different
+payment systems. These integrations are assumed to be payment-based, in that
+one side sends a payment to the other side and then the other side detects the
+incoming settlement.
 
 ## Configuration
 
 - If you want anybody to be able to connect to you without updating your
-  configuration, run the [Server](#server) plugin.
+  configuration, run the [Server](#server) plugin. Pass `"role": "server"` into
+  the plugin opts.
 
 - If you're peering 1:1 or are connecting to someone running a server plugin,
-  use the [Client/Peer](#client-peer) plugin.
+  use the [Client/Peer](#client-peer) plugin. Pass `"role": "client"` or no `"role"`
+  field into the plugin opts.
+
+The examples below will not work with the base class, but will work with the
+derived classes.
 
 ### Client/Peer
 
 ```js
-const PluginXrpPayment = require('ilp-plugin-xrp-payment')
-const plugin = new PluginXrpPayment({
+const PluginPayment = require('ilp-plugin-payment')
+
+const plugin = new PluginPayment({
   role: 'client',
   server: 'btp+ws://example.com:1234',
   secret: 's...'
@@ -37,8 +41,8 @@ const plugin = new PluginXrpPayment({
 ### Server
 
 ```js
-const PluginXrpPayment = require('ilp-plugin-xrp-payment')
-const plugin = new PluginXrpPayment({
+const PluginPayment = require('ilp-plugin-payment')
+const plugin = new PluginPayment({
   role: 'server',
   port: 1234,
   secret: 's...'

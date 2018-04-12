@@ -1,23 +1,22 @@
 const PluginBtp = require('ilp-plugin-btp')
 const Ripple = require('./ripple')
 
-// The code in this module is non-ripple specific. All you should have to do is
-// change this._ripple to your network of choice. To integrate a new network,
-// rewrite ./ripple.js for your new network.
-
 class PluginXrpPaymentClient extends PluginBtp {
   constructor (opts) {
     super(opts)
-    this._ripple = new Ripple(opts)
     this._connected = false
+  }
+
+  setSettler (settler) {
+    this._settler = settler
   }
 
   async _connect () {
     if (this._connected) return
     this._connected = true
 
-    await this._ripple.connect()
-    this._ripple.on('money', (userId, value) => {
+    await this._settler.connect()
+    this._settler.on('money', (userId, value) => {
       if (this._handleMoney) {
         this._handleMoney(String(value))
           .catch(e => console.error('_handleMoney Error:', e))
@@ -54,7 +53,7 @@ class PluginXrpPaymentClient extends PluginBtp {
     if (protocolMap['get_payment_details']) {
       return this.ilpAndCustomToProtocolData({
         custom: {
-          'get_payment_details': await this._ripple.getPaymentDetails(0)
+          'get_payment_details': await this._settler.getPaymentDetails(0)
         }
       })
     }
@@ -69,6 +68,6 @@ class PluginXrpPaymentClient extends PluginBtp {
 
   async sendMoney (amount) {
     const details = await this._getPaymentDetails()
-    this._ripple.sendMoney(details, amount)
+    this._settler.sendMoney(details, amount)
   }
 }
