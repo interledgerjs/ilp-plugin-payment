@@ -45,7 +45,7 @@ class PluginPaymentServer extends PluginMiniAccounts {
     })
 
     const { protocolMap } = this.protocolDataToIlpAndCustom(response)
-    const details = protocolMap['get_payment_details']
+    const details = protocolMap['custom']['get_payment_details']
 
     if (!details) {
       throw new Error('could not fetch payment details')
@@ -96,7 +96,7 @@ class PluginPaymentServer extends PluginMiniAccounts {
     const account = this.ilpAddressToAccount(from)
     const { ilp, protocolMap } = this.protocolDataToIlpAndCustom(data)
 
-    if (protocolMap['get_payment_details']) {
+    if (protocolMap['custom'] && protocolMap['custom']['get_payment_details']) {
       return this.ilpAndCustomToProtocolData({
         custom: {
           'get_payment_details': await this._settler.getPaymentDetails(account)
