@@ -1,4 +1,5 @@
 const PluginMiniAccounts = require('ilp-plugin-mini-accounts')
+const crypto = require('crypto')
 const debug = require('debug')('ilp-plugin-payment:server')
 const BigNumber = require('bignumber.js')
 const IlpPacket = require('ilp-packet')
@@ -134,6 +135,10 @@ class PluginPaymentServer extends PluginMiniAccounts {
     }
 
     return this.ilpAndCustomToProtocolData({ ilp: response })
+  }
+  async _requestId () {
+    //TODO move this method to the base plugin, PluginBtp
+    return crypto.randomBytes(4).readUInt32BE()
   }
 }
 

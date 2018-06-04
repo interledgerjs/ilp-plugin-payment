@@ -1,3 +1,4 @@
+const crypto = require('crypto')
 const BtpPacket = require('btp-packet')
 const PluginBtp = require('ilp-plugin-btp')
 
@@ -69,6 +70,11 @@ class PluginPaymentClient extends PluginBtp {
   async sendMoney (amount) {
     const details = await this._getPaymentDetails()
     await this._settler.sendPayment(details, amount)
+  }
+  
+  async _requestId () {
+    //TODO move this method to the base plugin, PluginBtp
+    return crypto.randomBytes(4).readUInt32BE()
   }
 }
 
