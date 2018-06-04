@@ -1,10 +1,12 @@
 const crypto = require('crypto')
+const debug = require('debug')('ilp-plugin-payment:client')
 const BtpPacket = require('btp-packet')
 const PluginBtp = require('ilp-plugin-btp')
 
 class PluginPaymentClient extends PluginBtp {
   constructor (opts) {
     super(opts)
+    //TODO  check to make sure opts.listener isn't passed otherwise this tries to setup as a server plugin
     this._connected = false
   }
 

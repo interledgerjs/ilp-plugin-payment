@@ -1,9 +1,9 @@
-const PluginMiniAccounts = require('ilp-plugin-mini-accounts')
 const crypto = require('crypto')
 const debug = require('debug')('ilp-plugin-payment:server')
 const BigNumber = require('bignumber.js')
 const IlpPacket = require('ilp-packet')
 const BtpPacket = require('btp-packet')
+const PluginMiniAccounts = require('ilp-plugin-mini-accounts')
 
 class PluginPaymentServer extends PluginMiniAccounts {
   constructor (opts) {
@@ -26,6 +26,7 @@ class PluginPaymentServer extends PluginMiniAccounts {
 
     await this._settler.connectPayment()
     this._settler.on('money', (userId, value) => {
+      debug(`received money event, userId:${userId}, value: ${value}`)
       const balance = this._balances.get(userId) || new BigNumber(0)
       const newBalance = balance.minus(value)
       this._balances.set(userId, newBalance)
