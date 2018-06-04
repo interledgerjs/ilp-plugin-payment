@@ -1,6 +1,8 @@
 const PluginMiniAccounts = require('ilp-plugin-mini-accounts')
+const debug = require('debug')('ilp-plugin-payment:server')
+const BigNumber = require('bignumber.js')
 const IlpPacket = require('ilp-packet')
-const debug = require('debug')('ilp-plugin-xrp-payment-server')
+const BtpPacket = require('btp-packet')
 
 class PluginPaymentServer extends PluginMiniAccounts {
   constructor (opts) {
@@ -64,7 +66,7 @@ class PluginPaymentServer extends PluginMiniAccounts {
         await this._settler.sendPayment(details, amount)
 
         const balance = this._balances.get(account)
-        const newBalance = balance.add(amount)
+        const newBalance = balance.plus(amount)
         this._balances.set(account, newBalance)
       } catch (e) {
         debug('settlement error. error=', e)
@@ -78,7 +80,7 @@ class PluginPaymentServer extends PluginMiniAccounts {
   async _handlePrepareResponse (destination, response, prepare) {
     const account = this.ilpAddressToAccount(destination)
 
-    if (response.type === IlpPacket.TYPE_FULFILL) {
+    if (response.type === IlpPacket.Type.TYPE_ILP_FULFILLMENT) {
       const account = this.ilpAddressToAccount(destination)
       const balance = this._balances.get(account) || new BigNumber(0)
       const newBalance = balance.minus(prepare.data.amount)

@@ -1,3 +1,4 @@
+const BtpPacket = require('btp-packet')
 const PluginBtp = require('ilp-plugin-btp')
 
 class PluginPaymentClient extends PluginBtp {
@@ -62,12 +63,12 @@ class PluginPaymentClient extends PluginBtp {
     }
 
     const response = await this._dataHandler(ilp)
-    return ilpAndCustomToProtocolData({ ilp: response })
+    return this.ilpAndCustomToProtocolData({ ilp: response })
   }
 
   async sendMoney (amount) {
     const details = await this._getPaymentDetails()
-    this._settler.sendPayment(details, amount)
+    await this._settler.sendPayment(details, amount)
   }
 }
 
