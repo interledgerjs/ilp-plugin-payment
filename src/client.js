@@ -18,11 +18,13 @@ class PluginPaymentClient extends PluginBtp {
 
     await this._settler.connectPayment()
     this._settler.on('money', (userId, value) => {
-      if (this._handleMoney) {
-        this._handleMoney(String(value))
-          .catch(e => console.error('_handleMoney Error:', e))
+      // throw error if no money handler registered - as per LPI2 spec
+      // but doesn't return the money
+      debug(`received money event, userId:${userId}, value: ${value}`)
+      this._moneyHandler(String(value))
+        .catch(e => console.error('_moneyHandler Error:', e))
       }
-    })
+    )
   }
 
   async _getPaymentDetails () {
