@@ -30,9 +30,10 @@ class PluginPaymentServer extends PluginMiniAccounts {
       const balance = this._balances.get(userId) || new BigNumber(0)
       const newBalance = balance.minus(value)
       this._balances.set(userId, newBalance)
-      // throw error if no money handler registered - as per LPI2 spec
-      // but doesn't return the money
-      this._moneyHandler(String(value))
+      //TODO LPI2 spec states that an error should be return if no money handler registered
+      if (this._moneyHandler) {
+        this._moneyHandler(String(value))
+      }
     })
   }
 
