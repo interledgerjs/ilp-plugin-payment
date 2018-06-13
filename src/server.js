@@ -85,7 +85,7 @@ class PluginPaymentServer extends PluginMiniAccounts {
   async _handlePrepareResponse (destination, response, prepare) {
     const account = this.ilpAddressToAccount(destination)
 
-    if (response.type === IlpPacket.Type.TYPE_ILP_FULFILLMENT) {
+    if (response.type === IlpPacket.Type.TYPE_ILP_FULFILL) {
       const account = this.ilpAddressToAccount(destination)
       const balance = this._balances.get(account) || new BigNumber(0)
       const newBalance = balance.minus(prepare.data.amount)
