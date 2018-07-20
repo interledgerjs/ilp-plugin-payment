@@ -31,7 +31,7 @@ class PluginPaymentClient extends PluginBtp {
 
   async _getPaymentDetails () {
     const protocolData = this.ilpAndCustomToProtocolData({
-      custom: {
+      protocolMap: {
         'get_payment_details': {}
       }
     })
@@ -43,7 +43,7 @@ class PluginPaymentClient extends PluginBtp {
     })
 
     const { protocolMap } = this.protocolDataToIlpAndCustom(response)
-    const details = protocolMap['custom']['get_payment_details']
+    const details = protocolMap['get_payment_details']
 
     if (!details) {
       throw new Error('could not fetch payment details')
@@ -55,9 +55,9 @@ class PluginPaymentClient extends PluginBtp {
   async _handleData (from, {requestId, data}) {
     const { ilp, protocolMap } = this.protocolDataToIlpAndCustom(data)
 
-    if (protocolMap['custom'] && protocolMap['custom']['get_payment_details']) {
+    if (protocolMap['get_payment_details']) {
       return this.ilpAndCustomToProtocolData({
-        custom: {
+        protocolMap: {
           'get_payment_details': await this._settler.getPaymentDetails(0)
         }
       })
