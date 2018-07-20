@@ -30,9 +30,12 @@ class PluginPaymentServer extends PluginMiniAccounts {
       const balance = this._balances.get(userId) || new BigNumber(0)
       const newBalance = balance.minus(value)
       this._balances.set(userId, newBalance)
-      // throw error if no money handler registered - as per LPI2 spec
-      // but doesn't return the money
-      this._moneyHandler(String(value))
+      /* 
+      A server plugin shouldn't call `_moneyHandler` when money is
+      received from a client, because it does all balance logic internally.
+      Instead, the connector should be configured to not use balance logic
+      for the server plugin.
+      */
     })
   }
 
