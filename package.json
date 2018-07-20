@@ -19,8 +19,8 @@
   "dependencies": {
     "bignumber.js": "^6.0.0",
     "eventemitter2": "^5.0.1",
-    "ilp-plugin-btp": "^1.1.12",
-    "ilp-plugin-mini-accounts": "^3.4.5"
+    "ilp-plugin-btp": "^1.1.14",
+    "ilp-plugin-mini-accounts": "^3.5.0"
   },
   "devDependencies": {
     "ilp-plugin-xrp-paychan-shared": "^3.0.2",
