@@ -30,10 +30,12 @@ class PluginPaymentServer extends PluginMiniAccounts {
       const balance = this._balances.get(userId) || new BigNumber(0)
       const newBalance = balance.minus(value)
       this._balances.set(userId, newBalance)
-      //TODO LPI2 spec states that an error should be return if no money handler registered
-      if (this._moneyHandler) {
-        this._moneyHandler(String(value))
-      }
+      /* 
+      A server plugin shouldn't call `_moneyHandler` when money is
+      received from a client, because it does all balance logic internally.
+      Instead, the connector should be configured to not use balance logic
+      for the server plugin.
+      */
     })
   }
 
