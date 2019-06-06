@@ -1,6 +1,9 @@
-const PluginMiniAccounts = require('ilp-plugin-mini-accounts')
+const crypto = require('crypto')
+const debug = require('debug')('ilp-plugin-payment:server')
+const BigNumber = require('bignumber.js')
 const IlpPacket = require('ilp-packet')
-const debug = require('debug')('ilp-plugin-xrp-payment-server')
+const BtpPacket = require('btp-packet')
+const PluginMiniAccounts = require('ilp-plugin-mini-accounts')
 
 class PluginPaymentServer extends PluginMiniAccounts {
   constructor (opts) {
@@ -23,15 +26,22 @@ class PluginPaymentServer extends PluginMiniAccounts {
 
     await this._settler.connectPayment()
     this._settler.on('money', (userId, value) => {
+      debug(`received money event, userId:${userId}, value: ${value}`)
       const balance = this._balances.get(userId) || new BigNumber(0)
       const newBalance = balance.minus(value)
       this._balances.set(userId, newBalance)
+      /* 
+      A server plugin shouldn't call `_moneyHandler` when money is
+      received from a client, because it does all balance logic internally.
+      Instead, the connector should be configured to not use balance logic
+      for the server plugin.
+      */
     })
   }
 
   async _getPaymentDetails (from) {
     const protocolData = this.ilpAndCustomToProtocolData({
-      custom: {
+      protocolMap: {
         'get_payment_details': {}
       }
     })
@@ -64,7 +74,7 @@ class PluginPaymentServer extends PluginMiniAccounts {
         await this._settler.sendPayment(details, amount)
 
         const balance = this._balances.get(account)
-        const newBalance = balance.add(amount)
+        const newBalance = balance.plus(amount)
         this._balances.set(account, newBalance)
       } catch (e) {
         debug('settlement error. error=', e)
@@ -78,7 +88,7 @@ class PluginPaymentServer extends PluginMiniAccounts {
   async _handlePrepareResponse (destination, response, prepare) {
     const account = this.ilpAddressToAccount(destination)
 
-    if (response.type === IlpPacket.TYPE_FULFILL) {
+    if (response.type === IlpPacket.Type.TYPE_ILP_FULFILL) {
       const account = this.ilpAddressToAccount(destination)
       const balance = this._balances.get(account) || new BigNumber(0)
       const newBalance = balance.minus(prepare.data.amount)
@@ -96,7 +106,7 @@ class PluginPaymentServer extends PluginMiniAccounts {
 
     if (protocolMap['get_payment_details']) {
       return this.ilpAndCustomToProtocolData({
-        custom: {
+        protocolMap: {
           'get_payment_details': await this._settler.getPaymentDetails(account)
         }
       })
@@ -132,6 +142,10 @@ class PluginPaymentServer extends PluginMiniAccounts {
     }
 
     return this.ilpAndCustomToProtocolData({ ilp: response })
+  }
+  async _requestId () {
+    //TODO move this method to the base plugin, PluginBtp
+    return crypto.randomBytes(4).readUInt32BE()
   }
 }
 

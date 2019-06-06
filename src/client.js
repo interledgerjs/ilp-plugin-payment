@@ -1,8 +1,12 @@
+const crypto = require('crypto')
+const debug = require('debug')('ilp-plugin-payment:client')
+const BtpPacket = require('btp-packet')
 const PluginBtp = require('ilp-plugin-btp')
 
 class PluginPaymentClient extends PluginBtp {
   constructor (opts) {
     super(opts)
+    //TODO  check to make sure opts.listener isn't passed otherwise this tries to setup as a server plugin
     this._connected = false
   }
 
@@ -16,16 +20,18 @@ class PluginPaymentClient extends PluginBtp {
 
     await this._settler.connectPayment()
     this._settler.on('money', (userId, value) => {
-      if (this._handleMoney) {
-        this._handleMoney(String(value))
-          .catch(e => console.error('_handleMoney Error:', e))
+      //TODO LPI2 spec states that an error should be return if no money handler registered
+      debug(`received money event, userId:${userId}, value: ${value}`)
+      if (this._moneyHandler) {
+        this._moneyHandler(String(value))
+          .catch(e => console.error('_moneyHandler Error:', e))
       }
     })
   }
 
   async _getPaymentDetails () {
     const protocolData = this.ilpAndCustomToProtocolData({
-      custom: {
+      protocolMap: {
         'get_payment_details': {}
       }
     })
@@ -51,7 +57,7 @@ class PluginPaymentClient extends PluginBtp {
 
     if (protocolMap['get_payment_details']) {
       return this.ilpAndCustomToProtocolData({
-        custom: {
+        protocolMap: {
           'get_payment_details': await this._settler.getPaymentDetails(0)
         }
       })
@@ -62,12 +68,17 @@ class PluginPaymentClient extends PluginBtp {
     }
 
     const response = await this._dataHandler(ilp)
-    return ilpAndCustomToProtocolData({ ilp: response })
+    return this.ilpAndCustomToProtocolData({ ilp: response })
   }
 
   async sendMoney (amount) {
     const details = await this._getPaymentDetails()
-    this._settler.sendPayment(details, amount)
+    await this._settler.sendPayment(details, amount)
+  }
+  
+  async _requestId () {
+    //TODO move this method to the base plugin, PluginBtp
+    return crypto.randomBytes(4).readUInt32BE()
   }
 }
 

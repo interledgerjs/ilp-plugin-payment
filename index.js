@@ -7,7 +7,7 @@ class PaymentPlugin extends EventEmitter {
     super()
 
     this._role = opts.role || 'client'
-    const InternalPluginClass = role === 'client' ? PaymentClientPlugin : PaymentServerPlugin
+    const InternalPluginClass = this._role === 'client' ? PaymentClientPlugin : PaymentServerPlugin
     this._plugin = new InternalPluginClass(opts)
 
     this._plugin.setSettler(this)
