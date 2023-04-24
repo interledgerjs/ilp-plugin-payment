@@ -25,6 +25,6 @@
   "devDependencies": {
     "ilp-plugin-xrp-paychan-shared": "^3.0.2",
     "ripple-keypairs": "^0.10.1",
-    "ripple-lib": "^0.20.0"
+    "ripple-lib": "^1.10.1"
   }
 }
